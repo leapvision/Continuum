@@ -1,0 +1,5 @@
+{
+    "MAX_QUESTIONS": 20,
+    "CONVERSATION_SAVE_DIR" : "data/conversations",
+    "CSV_SAVE_PATH" : "data/patient_records/records.csv"
+}
