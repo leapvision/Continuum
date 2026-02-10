@@ -1,0 +1,6 @@
+# python = 3.13
+torch
+transformers
+google-generativeai
+accelerate
+bitsandbytes
