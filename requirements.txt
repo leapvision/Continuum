@@ -1,0 +1,7 @@
+# python 3.11
+transformers==5.1.0
+torch==2.10.0
+scikit-image==0.26.0
+dotenv==1.2.1
+pillow==12.1.1
+
