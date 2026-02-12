@@ -92,7 +92,27 @@ def save_json(data: dict, file_path: str) -> None:
     try:
         with open(file_path, "w") as f:
             # Pretty-print JSON with 4-space indentation
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=6)
         print(f"Data successfully saved to '{file_path}'")
     except Exception as e:
         print(f"Error saving JSON to '{file_path}': {e}")
+
+def ask_model(model, dialog):
+    """
+    Sends a dialog to the language model and returns the final generated response.
+
+    Assumes:
+    - `model(dialog)` returns a list of results
+    - The first result contains a "generated_text" field
+    - "generated_text" is a list of messages
+    - The model's final reply is the last element's "content"
+
+    Parameters:
+        model (callable): The language model inference function
+        dialog (list | dict): Structured conversation input for the model
+
+    Returns:
+        str: The content of the model's final generated message
+    """
+    output = model(dialog)
+    return output[0]["generated_text"][-1]["content"]
