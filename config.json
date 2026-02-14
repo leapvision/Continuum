@@ -1,4 +1,5 @@
 {
     "CONVERSATION_SAVE_DIR" : "data/conversations",
-    "CSV_SAVE_PATH" : "data/patient_records/records.csv"
+    "CSV_SAVE_PATH" : "data/patient_records/records.csv",
+    "reports_dir": "data/reports"
 }

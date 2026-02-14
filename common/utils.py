@@ -1,5 +1,6 @@
 import os
 import json
+import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()  # loads .env once at import time
@@ -97,6 +98,15 @@ def save_json(data: dict, file_path: str) -> None:
     except Exception as e:
         print(f"Error saving JSON to '{file_path}': {e}")
 
+def read_txt(file_path):
+    with open(file_path, "r") as f:
+        data = f.read()
+    return data
+
+def save_txt(data, file_path):
+    with open(file_path, "w") as f:
+        f.write(data)
+
 def ask_model(model, dialog):
     """
     Sends a dialog to the language model and returns the final generated response.
@@ -116,3 +126,93 @@ def ask_model(model, dialog):
     """
     output = model(dialog)
     return output[0]["generated_text"][-1]["content"]
+
+def collect_new_patient_details(patient_id):
+    return {
+        "patient_id": patient_id,
+        "name": input("\nWhat is your name?\n").strip(),
+        "age": int(input("\nHow old are you?\n")),
+        "sex": input("\nWhat is your sex?\n").strip(),
+    }
+
+def get_patient_details(dataset_schema, csv_path):
+
+    patient_id = input("\nPlease enter your Contact number :\n").strip()
+    if not patient_id:
+        raise ValueError("Patient ID cannot be empty.")
+
+    patient_details = {}
+    last_visit = 0
+    exising_report = None
+    df = pd.DataFrame()
+
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+
+        required_cols = {"patient_id", "visit", "conversation_path"}
+        if not required_cols.issubset(df.columns):
+            raise ValueError("CSV schema is invalid or corrupted.")
+
+        df["patient_id"] = df["patient_id"].astype(str)
+        patient_rows = df[df["patient_id"] == patient_id]
+
+        if not patient_rows.empty:
+            print("\nWe found your record. Retrieving details from your last visit...\n")
+
+            patient_rows["visit"] = pd.to_numeric(patient_rows["visit"], errors="coerce")
+            ehr_records = [(visit, read_txt(report_path))for visit, report_path in zip(patient_rows['visit'].tolist(), patient_rows['report_path'].tolist())]
+            
+            last_visit = int(patient_rows["visit"].max())
+
+            last_visit_row = patient_rows.loc[patient_rows["visit"].idxmax()]
+
+            json_path = last_visit_row["conversation_path"]
+
+            if pd.isna(json_path) or not os.path.exists(json_path):
+                raise FileNotFoundError(f"Conversation file missing for patient {patient_id}")
+
+            record = read_json(json_path)
+            patient_details = record.get("patient_detail", {})
+
+        else:
+            print("\nNo existing record found. Let's collect your details.\n")
+            patient_details = collect_new_patient_details(patient_id)
+            ehr_records = "There is No Past Records"
+    else:
+        print("\nNo records found. Let's collect your details.\n")
+        patient_details = collect_new_patient_details(patient_id)
+        ehr_records = "There is No Past Records"
+
+    dataset_schema["patient_id"] = patient_id
+    dataset_schema["visit"] = last_visit + 1
+
+    return patient_details, last_visit, exising_report, ehr_records, df
+
+def get_ehr_summary(patient_name, ehr_records, model):
+    
+    if ehr_records == "There is No Past Records":
+        ehr_summary = ehr_records
+    else:
+        ehr_summary = ask_model(dialog=[
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"""You are a medical assistant summarizing the EHR (FHIR) records for the patient {patient_name}.
+                        Provide a concise summary of the patient's medical history, including any existing conditions, medications, and relevant past treatments.
+                        Do not include personal opinions or assumptions, only factual information. Data is in list of tuple format. where first element is visit id and second is report."""
+                    }
+                ]
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": ehr_records
+                    }
+                ]
+            }
+        ], model=model)
+    return ehr_summary
