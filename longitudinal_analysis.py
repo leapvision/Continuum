@@ -30,15 +30,38 @@ def load_image(path_str):
     return Image.open(image_path)
 
 
-image1 = load_image(
-    "~/Drongo/data/test data/longitudinal analysis/3b8b1b7d-054490d5-385641e7-ff43d2c8-9505f058.jpg"
-)
-image2 = load_image(
-    "~/Drongo/data/test data/longitudinal analysis/ed9c0dfc-ea25b576-0f8cc069-df4cdf14-0cd60eb7.jpg"
-)
+def get_patient_images_from_folder(root_folder):
+    patient_dir = Path(root_folder).expanduser()
+    if not patient_dir.exists():
+        raise FileNotFoundError(f"Root folder not found: {patient_dir}")
+    if not patient_dir.is_dir():
+        raise NotADirectoryError(f"Root path is not a directory: {patient_dir}")
+
+    image_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
+    patient_images = {}
+
+    image_paths = sorted(
+        [
+            p
+            for p in patient_dir.iterdir()
+            if p.is_file() and p.suffix.lower() in image_extensions
+        ]
+    )
+    if image_paths:
+        print(f"Patient folder: {patient_dir}")
+        for image_path in image_paths:
+            print(f"  image: {image_path}")
+        patient_images[patient_dir.name] = [Image.open(path) for path in image_paths]
+        print(f"  total images: {len(image_paths)}")
+
+    if not patient_images:
+        raise RuntimeError(f"No patient folders with images found in: {patient_dir}")
+
+    return patient_images
 
 
-prompt = f"""Provide a comparison of these two images from the same patient and include details on progression of a disease/finding"""
+prompt_template = """Compare the provided {num_images} images from the same patient and describe any potential progression of a disease or finding.
+"""
 
 
 def pad_image_to_square(image_array):
@@ -62,28 +85,28 @@ def pad_image_to_square(image_array):
     return image_array
 
 
-preprocess_image = False  # @param {type: "boolean"}
+preprocess_image = True  # @param {type: "boolean"}
 
-if preprocess_image:
-    # Convert the input image to a square numpy array and normalize pixel values.
-    image_array1 = (pad_image_to_square(image1) * 255).astype(np.uint8)
-    # Convert the numpy array back to a PIL Image.
-    image1 = Image.fromarray(image_array1)
-    # Convert the input image to a square numpy array and normalize pixel values.
-    image_array2 = (pad_image_to_square(image2) * 255).astype(np.uint8)
-    # Convert the numpy array back to a PIL Image.
-    image2 = Image.fromarray(image_array2)
+patients_root = (
+    "~/Drongo/data/test data/longitudinal analysis/mimic_dataset_longitudinal/50022785/"
+)
+patient_images = get_patient_images_from_folder(patients_root)
 
-messages = [
-    {
-        "role": "user",
-        "content": [
-            {"type": "image", "image": image1},
-            {"type": "image", "image": image2},
-            {"type": "text", "text": prompt},
-        ],
-    }
-]
+for patient_id, images in patient_images.items():
+    if preprocess_image:
+        processed_images = []
+        for image in images:
+            # Convert each input image to a square numpy array and normalize pixel values.
+            image_array = (pad_image_to_square(image) * 255).astype(np.uint8)
+            # Convert the numpy array back to a PIL Image.
+            processed_images.append(Image.fromarray(image_array))
+        images = processed_images
 
-output = pipe(text=messages, max_new_tokens=2000)
-print(output[0]["generated_text"][-1]["content"])
+    prompt = prompt_template.format(num_images=len(images))
+    content = [{"type": "image", "image": image} for image in images]
+    content.append({"type": "text", "text": prompt})
+    messages = [{"role": "user", "content": content}]
+
+    output = pipe(text=messages, max_new_tokens=2000)
+    print(f"\nPatient: {patient_id}")
+    print(output[0]["generated_text"][-1]["content"])
