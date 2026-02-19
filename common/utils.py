@@ -1,5 +1,6 @@
 import os
 import json
+import torch
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -136,7 +137,7 @@ def collect_new_patient_details(patient_id):
     }
 
 def get_patient_details(dataset_schema, csv_path):
-
+    
     patient_id = input("\nPlease enter your Contact number :\n").strip()
     if not patient_id:
         raise ValueError("Patient ID cannot be empty.")
@@ -160,7 +161,7 @@ def get_patient_details(dataset_schema, csv_path):
             print("\nWe found your record. Retrieving details from your last visit...\n")
 
             patient_rows["visit"] = pd.to_numeric(patient_rows["visit"], errors="coerce")
-            ehr_records = [(visit, read_txt(report_path))for visit, report_path in zip(patient_rows['visit'].tolist(), patient_rows['report_path'].tolist())]
+            ehr_records = [(visit, read_txt(report_path)) for visit, report_path in zip(patient_rows['visit'].tolist(), patient_rows['report_path'].tolist())]
             
             last_visit = int(patient_rows["visit"].max())
 

@@ -1,0 +1,21 @@
+## Medical Intake Report
+
+**Chief Complaint:** Knee pain
+
+**History of Present Illness:**
+The patient reports knee pain that started yesterday after a football injury. The pain is located in the upper kneww. The pain is constant and rated 6/10. The patient reports difficulty bending their knee. The patient denies any other symptoms, swelling, redness, numbness, or tingling. The patient reports trying ice, but it did not relieve the pain.
+
+**Relevant Medical History:**
+No history of knee injuries or conditions.
+
+**Pertinent Negatives:**
+No fever, shortness of breath, numbness, or tingling.
+
+**Allergies:**
+No known drug allergies.
+
+**Medications:**
+No medications taken for the pain.
+
+**Other Medical Conditions:**
+No other medical conditions reported.
