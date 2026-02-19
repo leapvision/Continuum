@@ -1,0 +1,25 @@
+{
+      "patient_detail": {
+            "patient_id": "0321654987",
+            "name": "Noname",
+            "age": 25,
+            "sex": "M"
+      },
+      "symtoms": {
+            "Thank you for booking an appointment with your primary doctor. I am an assistant here to ask a few questions to help your doctor prepare for your visit. To start, what is your main concern today?": "Abdomen Pain",
+            "Can you describe the location of the abdominal pain?": "Sharp pain while eating",
+            "How long have you been experiencing this sharp pain while eating?": "For two days",
+            "Is the pain constant or does it come and go?": "Constant",
+            "Does anything make the pain better or worse?": "I dont know",
+            "Have you noticed any other symptoms along with the abdominal pain?": "No",
+            "Do you have any history of gastrointestinal issues, such as heartburn or indigestion?": "Acidity",
+            "Have you taken any medications or supplements recently?": "No",
+            "Do you have any known allergies?": "No",
+            "Have you eaten anything unusual or different in the past two days?": "fastfood",
+            "Do you have any family history of gastrointestinal disorders?": "no",
+            "Have you tried any over-the-counter medications for the pain? If so, which ones?": "No",
+            "Do you have any other medical conditions?": "no",
+            "Have you had any recent surgeries or hospitalizations?": "no",
+            "Do you smoke, drink alcohol, or use recreational drugs?": "No"
+      }
+}
