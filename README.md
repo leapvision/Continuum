@@ -1,51 +1,112 @@
-# Safety Engine
+# 🩺 Continuum — Clinical AI Platform
 
-A medication safety checking engine that validates drug-drug interactions (DDI), allergies, and contraindications.
+> End-to-end clinical AI pipeline: patient intake → interview → AI triage → CXR diagnosis → AI-powered prescription safety → FHIR record export.
 
-## Project Structure
+---
+
+## 🔗 Quick Links
+
+| Resource | Link |
+|----------|------|
+| 📂 **Project Data Drive** | _[https://drive.google.com/drive/folders/17gsPeWAW2gkZgilhM41829H_64gVKILe?usp=sharing]_ |
+| ☁️ **Google Colab (run in browser)** | _[https://colab.research.google.com/drive/1TNyDWxWkE3MsK71ka1q_4DuZGprpXsV1?usp=drive_link]_ |
+| 🤗 **Model — MedGemma 4b** | [google/medgemma-4b-it](https://huggingface.co/google/medgemma-4b-it) |
+
+---
+
+## Pipeline Flow
 
 ```
-safety-engine/
-├── api/
-│   └── main.py              # FastAPI application — all routes
-├── engine/
-│   ├── safety_engine.py     # Core check logic (DDI, allergy, contraindication)
-│   └── patient_store.py     # Patient context retrieval
-├── data/
-│   ├── patients.json        # Mock patient DB (5 patients)
-│   └── drug_knowledge.json  # Interaction rules (DrugBank-modeled)
-├── tests/
-│   └── test_safety_engine.py
-├── requirements.txt
-└── README.md
+① Registration  →  ② Clinical Interview  →  ③ AI Triage
+        ↓
+④ CXR & Lab Diagnosis  →  ⑤ Prescription Safety  →  ⑥ Complete Records
 ```
 
-## Data Gdrive Link
+---
 
-[KG / Patient records](https://drive.google.com/drive/folders/1vNK9AA94jyQ39FpAX46XWcBJI3-s_R1Q?usp=drive_link)
+## Notebook Files
+
+| File | Purpose |
+|------|---------|
+| `Continuum.ipynb` | Primary production notebook — run this |
+
+---
 
 ## Setup
 
-```bash
-cd safety-engine
-pip install -r requirements.txt
-```
-
-## Running
+### 1. Clone & install dependencies
 
 ```bash
-uvicorn api.main:app --reload
+git clone <repo-url>
 ```
 
-## API Endpoints
-
-- `POST /check` - Check medication safety for a patient
-- `GET /patients` - List all patients
-- `GET /patients/{patient_id}` - Get patient details
-
-## Testing
+### 2. Set HuggingFace token (for model download)
 
 ```bash
-pytest tests/
+export HF_TOKEN=hf_...
 ```
 
+Or place it in a `.env` file:
+```
+HF_TOKEN=hf_...
+```
+
+### 3. Run
+
+Open `Continuum.ipynb` in Jupyter / VS Code and **Run All Cells**, then:
+
+```python
+launch_gradio_ui()   # Opens at http://localhost:7860
+```
+
+---
+
+## Data Structure
+
+```
+Continuum/
+├── DAta/master/
+│   ├── global_patient_registry.csv    # Patient demographics & gene profiles
+│   └── global_provider_registry.csv   # Doctors, departments, available slots
+├── Mod1/                              # Intake / conversation storage
+│   └── data/conversations/            # Per-visit JSON, FHIR bundles, lab JSON
+├── Mod4/
+│   └── Prescription_KG_Data/
+│       └── drug_knowledge.json        # DDI × 37, Allergy × 10, Contrain × 18, PGx × 6
+└── Mod3/
+    └── .lancedb/                      # CXR vector embeddings (auto-created on first run)
+```
+
+---
+
+## Key Features
+
+- **MedGemma 4b** — multimodal clinical LLM (text + CXR image)
+- **AI Triage** — department routing with provisional clinic assignment card
+- **Longitudinal CXR** — dual-image comparative analysis for returning patients
+- **Two-layer drug safety** — KB rule engine (37 DDI, PGx, allergy) + AI dosage / indication review
+- **FHIR R4** — Patient / Condition / Observation / MedicationRequest bundle per visit
+- **Offline** — no external APIs beyond HuggingFace model download
+
+---
+
+## Requirements
+
+See [requirements.txt](requirements.txt) — key dependencies:
+
+```
+transformers>=4.40
+torch>=2.1
+gradio>=4.0
+lancedb
+sentence-transformers
+pandas
+Pillow
+python-dotenv
+```
+
+---
+
+## License
+
+See [LICENSE](LICENSE).
