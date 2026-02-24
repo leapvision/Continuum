@@ -8,7 +8,7 @@
 
 | Resource | Link |
 |----------|------|
-| 📂 **Project Data Drive** | _[https://drive.google.com/drive/folders/17gsPeWAW2gkZgilhM41829H_64gVKILe?usp=sharing]_ |
+| 📂 **Project Data Drive** | _[https://drive.google.com/file/d/1-lhgEEo1QOlXSdrkcU-E4PPM8QLTVOsT/view?usp=sharing]_ |
 | ☁️ **Google Colab (run in browser)** | _[https://colab.research.google.com/drive/1TNyDWxWkE3MsK71ka1q_4DuZGprpXsV1?usp=drive_link]_ |
 | 🤗 **Model — MedGemma 4b** | [google/medgemma-4b-it](https://huggingface.co/google/medgemma-4b-it) |
 
@@ -21,6 +21,10 @@
         ↓
 ④ CXR & Lab Diagnosis  →  ⑤ Prescription Safety  →  ⑥ Complete Records
 ```
+
+### Flow Design Diagram
+
+![Continuum Flow Design](Smart%20Front%20Door%20Patient-2026-02-24-071947.png)
 
 ---
 
